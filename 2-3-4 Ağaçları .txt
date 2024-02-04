@@ -1,0 +1,82 @@
+2-3-4 Ağaçları 
+
+class Node {
+    int[] keys;
+    Node[] children;
+    int numKeys;
+    boolean isLeaf;
+
+    public Node(int key, boolean isLeaf) {
+        this.keys = new int[3];
+        this.children = new Node[4];
+        this.numKeys = 1;
+        this.isLeaf = isLeaf;
+        this.keys[0] = key;
+    }
+}
+
+public class TwoThreeFourTree {
+    private Node root;
+
+    public TwoThreeFourTree() {
+        root = null;
+    }
+
+    public void insert(int key) {
+        if (root == null) {
+            root = new Node(key, true);
+        } else {
+            Node result = insert(root, key);
+            if (result != null) {
+                Node newRoot = new Node(result.keys[0], false);
+                newRoot.children[0] = root;
+                newRoot.children[1] = result.children[0];
+                newRoot.children[2] = result.children[1];
+                root = newRoot;
+            }
+        }
+    }
+
+    private Node insert(Node node, int key) {
+        if (node.isLeaf) {
+            return splitNode(node, key);
+        } else {
+            int index = findIndex(node, key);
+            Node result = insert(node.children[index], key);
+            if (result != null) {
+                return splitNode(node, result.keys[0]);
+            }
+        }
+        return null;
+    }
+
+    private int findIndex(Node node, int key) {
+        int index = 0;
+        while (index < node.numKeys && key > node.keys[index]) {
+            index++;
+        }
+        return index;
+    }
+
+    private Node splitNode(Node node, int key) {
+        if (node.numKeys < 3) {
+            int index = findIndex(node, key);
+            for (int i = node.numKeys; i > index; i--) {
+                node.keys[i] = node.keys[i - 1];
+                node.children[i + 1] = node.children[i];
+            }
+            node.keys[index] = key;
+            node.children[index + 1] = new Node(key, true);
+            node.numKeys++;
+            return null;
+        } else {
+            int index = findIndex(node, key);
+            Node newNode = new Node(node.keys[2], true);
+            newNode.children[0] = node.children[2];
+            newNode.children[1] = node.children[3];
+            node.numKeys = 1;
+
+            if (index == 0) {
+                newNode.children[0] = splitNode(node.children[0], key);
+            } else if (index == 1) {
+                ne
